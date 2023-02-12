@@ -1,20 +1,20 @@
-#### Pipe line commands for converting RGI output to gene counts:
+# Pipe line commands for converting RGI output to gene counts:
 
 
-# Its a good idea to make a unique list of all the genes to help you identify gene hits:
-# Gene hits are in the 9th column of RGI output txt files, you can use the following command:
+#### Its a good idea to make a unique list of all the genes to help you identify gene hits:
+#### Gene hits are in the 9th column of RGI output txt files, you can use the following command:
 
 ``` 
 cut -f9 *.fna.txt |tr -d "'" | sed '1d' | sort | uniq > RGI_genes.txt 
 
 ```
-# Cut the gene hit columns for each genome:
+#### Cut the gene hit columns for each genome:
 
 ```
 for i in *.fna.txt; do cut -f9 $i | tr -d "'" | sed '1d' > $i.txt; done
 ```
- # Make gene count files:
- # This shell script makes an output file of the genes and the gene count e.g. if it has a 1 hit, it would be "gene_name 1" 
+ #### Make gene count files:
+ #### This shell script makes an output file of the genes and the gene count e.g. if it has a 1 hit, it would be "gene_name 1" 
 
 ``` 
 #!/bin/bash
@@ -32,7 +32,7 @@ do
 sh RGI_count_script.sh $i > $i.RGIcount.txt;
 done
 ```
-# RGI_count_script.sh : (to be used in script above)
+#### RGI_count_script.sh : (to be used in script above)
 ```
 cat $1 | awk 'BEGIN{ 
     
@@ -59,7 +59,7 @@ cat $1 | awk 'BEGIN{
 }'
 ```
 
-# This next script combines all data so you can analyse, data as one dataframe: catfiles.sh
+#### This next script combines all data so you can analyse, data as one dataframe: catfiles.sh
 ```
 #!/bin/bash
 #SBATCH --time=00:30:00
