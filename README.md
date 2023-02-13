@@ -6,3 +6,8 @@
   - taxa analysis code
   - original rgi code (for boxplot)
   - cytoscape analysis code
+  - stats code
+  
+ # Code for figures:
+  - stacked barcharts
+  - boxplots
