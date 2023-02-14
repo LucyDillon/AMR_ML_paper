@@ -3,7 +3,6 @@
 #### Step 1: get a list of unique gene families within the decision trees:
 ````
 for i in *.dot; do grep "GeneFamily" $i | cut -f2  -d '"' | cut -f2 -d '-' > $i.txt; done
-
 ``` 
 
 #### Step 2: Get a protein sequence for each gene family
@@ -21,11 +20,12 @@ https://string-db.org/cgi/input?sessionId=bbEZAOFXr8HJ&input_page_active_form=CO
 The network is very large, we reduced the connections by only including pairwise connections present in the network if BOTH gene families are ALSO present within at least one decision tree model.
 
 To do this:
-```
-python File_compare.py | grep "both" > ampicillin_cytoscape.txt
 
 ```
+python File_compare.py | grep "both" > ampicillin_cytoscape.txt
+```
 where File_compare.py is:
+
 ``` 
 # Open file1.txt and file2.txt
 with open("String_nodes.txt") as f1, open("ampicillin_EGGNOG_NEW.arff.dot.txt") as f2:
@@ -40,11 +40,11 @@ with open("String_nodes.txt") as f1, open("ampicillin_EGGNOG_NEW.arff.dot.txt") 
             print(f"{node1} and {node2} are both present in file2.txt")
         else:
             print(f"{node1} and/or {node2} are not present in file2.txt")
-
 ```
 
 This will produce a file which can be opened in microsoft excel (tab delimited). 
 Paste in the *_cytoscape.txt files, the column beside the data put the antibiotic name e.g.
+
 ```
 COG0038	and	COG5001	are	both	present	in	file2.txt	ciprofloxacin
 COG0038	and	COG0053	are	both	present	in	file2.txt	ciprofloxacin
@@ -67,7 +67,6 @@ Then we will save this as String_intractions_by_dt.txt
 #### python script to find which rows of the original network are needed:
 
 ```
-
 # read in packages:
 import pandas as pd
 
