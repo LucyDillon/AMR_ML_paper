@@ -3,12 +3,10 @@
 #### Step 1: get a list of unique gene families within the decision trees:
 ````
 for i in *.dot; do grep "GeneFamily" $i | cut -f2  -d '"' | cut -f2 -d '-' > $i.txt; done
-
-
+``````
 #### Step 2: Get a protein sequence for each gene family
 
 This required manually downloading the gene family protein sequences and selecting one sequence for each gene family.
-File called: uniq_GeneFamillies.fasta????
 
 #### Step 3: put proteins into String to find connections.
 https://string-db.org/cgi/input?sessionId=bbEZAOFXr8HJ&input_page_active_form=COG_multiple_sequences
@@ -83,4 +81,7 @@ combined_data.to_csv("cytoscape_input.tsv", sep='\t', index=False)
 #### The network can be opened in cytoscape. 
 
 In the analysis I coloured the edges via antibiotic model and the node size was proportional to the amount of models the gene family (node) was present in.
+
+
+
 
