@@ -199,16 +199,3 @@ Plot3 <- ggplot(data.newr, aes(x=Method, y=average_recall, fill=Method)) +
                                                                               'J48 model using Eggnog gene families'))
 
 grid.arrange(Plot1,Plot2, Plot3, nrow=2, ncol=2)
-
-
-
-
-
-
-
-
-
-geom_line(data=tibble(x=c(start_val, end_value), y=c(102, 102)), aes(x=x, y=y), inherit.aes = FALSE)+
-  geom_text(data=tibble(x=value, y=value), aes(x=x, y=y, label="B"), inherit.aes = FALSE)+
-geom_line(data=tibble(x=c(start_val, end_value), y=c(102, 102)), aes(x=x, y=y), inherit.aes = FALSE)+
-  geom_text(data=tibble(x=value, y=value), aes(x=x, y=y, label="C"), inherit.aes = FALSE)
