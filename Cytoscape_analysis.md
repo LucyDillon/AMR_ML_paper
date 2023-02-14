@@ -3,7 +3,7 @@
 #### Step 1: get a list of unique gene families within the decision trees:
 ````
 for i in *.dot; do grep "GeneFamily" $i | cut -f2  -d '"' | cut -f2 -d '-' > $i.txt; done
-``` 
+
 
 #### Step 2: Get a protein sequence for each gene family
 
