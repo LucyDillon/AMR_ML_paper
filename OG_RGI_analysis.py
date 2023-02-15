@@ -69,7 +69,7 @@ final_table_reduced = final_table[["genome_id", "Gene", "GeneHit", "antibiotic",
 
 # only keep rows with susceptible or res phenotype:
 final_table = final_table_reduced[(final_table_reduced["add_phenotype"] == 'Susceptible') | (final_table_reduced["add_phenotype"] == 'Resistant')]
-
+# This adds a column where, if the gene hit is greater than 0 it will print Resistant, if there is not gene hit it will print susceptible
 Pivot_table = pd.pivot_table(final_table, values='GeneHit', index='genome_id', columns='Gene', fill_value=0)
 Pivot_table['sum'] = Pivot_table[list(Pivot_table.columns)].sum(axis=1)
 Pivot_table['pheno'] = np.where(Pivot_table['sum'] > 0, "Resistant", "Susceptible")
@@ -78,7 +78,7 @@ Pivot_table = Pivot_table[["pheno"]]
 phenotype =phenotype.set_index('genome_id')
 #merge phenotype data with eggnog data
 final_table = Pivot_table.join(phenotype)
-
+# Reduce to only susceptible and resistant phenotypes
 final_table = final_table[(final_table["add_phenotype"] == 'Susceptible') | (final_table["add_phenotype"] == 'Resistant')]
 
 # Split the dataframe into groups by 'antibiotic'
@@ -115,5 +115,5 @@ for group_name, group in groups:
 # Concatenate the confusion matrices for all groups into a single dataframe
 result = pd.concat(confusion_matrices.values(), axis=0)
 
-# Print the result
+# Print the result (this will show the confusion matrix for each antibiotic)
 print(result)
