@@ -2,13 +2,13 @@
 #### Definition of each file:
 | File | Description |
 |------|-------------|
-|AMR_gene_count.sh | counts genes|
+|AMR_gene_count.sh | -|
 |Cytoscape_analysis.md | Information on gene network plot (fig4) |
 |Diamond_RGI_analysis.sh|-|
 |Eggnog_analysis.py | -|
 |Eggnog_analysis.sh | - |
-| FIGURE_1.R | - |
-| J48_2_Dot.sh | -|
+| FIGURE_1.R | R code used to make Fig.1 |
+| J48_2_Dot.sh | Converts J48 model into a .dot file (easier for visulisation|
 |Logistic_regression_NCBI_AMRFinder.py | -|
 |Logistic_regression_RGI.py | - |
 |Logistic_regression_ResFinder.py| - |
