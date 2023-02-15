@@ -1,7 +1,9 @@
+# Read in libraries:
 library(dplyr)
-
+# Read in data:
 data<- read.csv("Accuracy_precision_recall_vals_r.csv")
 
+# Write function for wilcoxon signed rank test:
 pairwise_wilcox_test <- function(data, column, groups){
   
   for (i in 1:length(groups)){
@@ -14,6 +16,7 @@ pairwise_wilcox_test <- function(data, column, groups){
   }
 }
 
+# Perform stats test on accuracy values:
 pairwise_wilcox_test(data, "Accuracy", list(c("OG_RGI", "LR"),
                                             c("OG_RGI", "RGI_specific"),
                                             c("OG_RGI", "RGI_all"),
@@ -25,6 +28,7 @@ pairwise_wilcox_test(data, "Accuracy", list(c("OG_RGI", "LR"),
                                             c("RGI_specific", "Eggnog"),
                                             c("RGI_all", "Eggnog")))
 
+# Perform stats test on precision values:
 pairwise_wilcox_test(data, "average_precision", list(c("OG_RGI", "LR"),
                                             c("OG_RGI", "RGI_specific"),
                                             c("OG_RGI", "RGI_all"),
@@ -36,6 +40,7 @@ pairwise_wilcox_test(data, "average_precision", list(c("OG_RGI", "LR"),
                                             c("RGI_specific", "Eggnog"),
                                             c("RGI_all", "Eggnog")))
 
+# Perform stats test on recall values:
 pairwise_wilcox_test(data, "average_recall", list(c("OG_RGI", "LR"),
                                             c("OG_RGI", "RGI_specific"),
                                             c("OG_RGI", "RGI_all"),
