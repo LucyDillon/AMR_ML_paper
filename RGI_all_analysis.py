@@ -66,11 +66,12 @@ final_table = table.join(phenotype)
 final_table = final_table[(final_table["add_phenotype"] == 'Susceptible') |
                           (final_table["add_phenotype"] == 'Resistant')]
 
+# Make a list of unique genes which is sorted
 Genes = data['Gene']
 Genes = Genes.sort_values(ascending=True)
 Genes = Genes.drop_duplicates()
 
-
+# This function writes the information to the arff file (default file input to weka) 
 def write_to_arff(antibiotic, outfile_antibiotic, final_table):
     antibiotic_df = final_table[final_table["antibiotic"] == antibiotic]
     antibiotic_df = antibiotic_df.reset_index()
@@ -92,12 +93,13 @@ def write_to_arff(antibiotic, outfile_antibiotic, final_table):
     att_out_antibiotic.write(antibiotic_array_sep + '\n')
     att_out_antibiotic.close()
 
-
+# List of antibiotics to be used in the function
 antibiotics = ['amikacin', 'amoxicillin', 'ampicillin', 'aztreonam', 'cefepime', 'ceftriaxone', 'chloramphenicol',
                'ciprofloxacin', 'clindamycin', 'colistin', 'doripenem', 'ertapenem', 'erthromycin', 'fosfomycin',
                'gentamicin', 'imipenem', 'levofloxacin', 'meropenem', 'moxifloxacin', 'nitrofurantoin', 'tetracycline',
                'tigecycline', 'tobramycin']
-               
+ 
+# Run the function and make .arff files for each antibiotic  
 for antibiotic in antibiotics:
     outfile_antibiotic = f"{antibiotic}_RGI_all_genes.arff"
     write_to_arff(antibiotic, outfile_antibiotic, final_table)
