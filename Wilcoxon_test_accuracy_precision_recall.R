@@ -7,7 +7,7 @@ pairwise_wilcox_test <- function(data, column, groups){
   for (i in 1:length(groups)){
     sub_data <- subset(data, Method %in% groups[[i]])
     result <- wilcox.test(as.formula(paste(column, "~ Method")), data = sub_data,
-                          exact = FALSE)
+                          exact = FALSE, paired = TRUE)
     print(paste("Comparison between", groups[[i]][[1]], "and", groups[[i]][[2]], ":", sep = " "))
     print(result)
     print("\n")
