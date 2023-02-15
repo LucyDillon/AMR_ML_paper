@@ -1,4 +1,7 @@
 # AMR_ML_paper
+Each file has a breif description of it's role in the research below. For further details please read the paper or contact myself at ldillon97@gmail.com.
+For specific files please email.
+
 #### Definition of each file:
 | File | Description |
 |------|-------------|
