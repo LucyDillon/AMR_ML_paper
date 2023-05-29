@@ -25,6 +25,7 @@ For specific files please email.
 |RGI_specific_analysis.py | Script used to make .csv files from the RGI genes SPECIFIC to the antibiotic they target in the CARD db|
 |ResFinder_WGS_analysis.sh | ResFinder script on my genomes|
 |Stacked_barcharts_by_cog_cat.py | Script to make supplementary figure 8 (stacked barcharts)|
+|Tree_traversal_stacked_barcharts.py| Script to make stacked barcharts from tree traversals |
 |Wilcoxon_test_accuracy_precision_recall.R | Stats test run to compare different model accuracy, precison, and recall|
 |genome_ids.txt | This is the list if genomes downloaded from PATRIC (now BV-BRC)|
 
