@@ -9,6 +9,9 @@ drug_class = pd.read_csv("merge_drugclass.csv")
 data = pd.read_csv("ALL_RGI_genomes.csv")
 # Convert into a table:
 table = pd.pivot_table(data, values=['GeneHit'], index=['genome_id'], columns=['Gene'], fill_value=0)
+table = table.reset_index()
+table.columns = table.columns.droplevel(0)
+table.rename(columns = {list(table)[0]: 'genome_id'}, inplace = True)
 # MIC analysis:
 MIC_reduced = MIC_data[(MIC_data["phenotype"] == "Resistant") | (MIC_data["phenotype"] == "Susceptible")]
 # Merge Species_ids and EUCAST_MIC with common column "EUCAST_species"
@@ -66,40 +69,43 @@ final_table = table.join(phenotype)
 final_table = final_table[(final_table["add_phenotype"] == 'Susceptible') |
                           (final_table["add_phenotype"] == 'Resistant')]
 
-# Make a list of unique genes which is sorted
 Genes = data['Gene']
 Genes = Genes.sort_values(ascending=True)
 Genes = Genes.drop_duplicates()
 
-# This function writes the information to the arff file (default file input to weka) 
-def write_to_arff(antibiotic, outfile_antibiotic, final_table):
-    antibiotic_df = final_table[final_table["antibiotic"] == antibiotic]
-    antibiotic_df = antibiotic_df.reset_index()
-    antibiotic_df = antibiotic_df.drop_duplicates()
-    antibiotic_df = antibiotic_df.set_index('genome_id')
-    antibiotic_df = antibiotic_df.drop('antibiotic', 1)
-    antibiotic_array = antibiotic_df.to_string(index=False, header=False)
-    antibiotic_array_sep = antibiotic_array.replace(' ', ',')
-    antibiotic_array_sep = antibiotic_array_sep.replace(',,,', ',')
-    antibiotic_array_sep = antibiotic_array_sep.replace(',,', ',')
-    att_out_antibiotic = open(outfile_antibiotic, "w")
-    i = 'Gene'
-    att_out_antibiotic.write('@RELATION    ' + i + '\n')
-    name = 'phenotype'
-    for x in Genes:
-        att_out_antibiotic.write('@ATTRIBUTE Gene-' + x + '  REAL\n')
-    att_out_antibiotic.write('@ATTRIBUTE ' + name + '		{Susceptible, Resistant}\n')
-    att_out_antibiotic.write('@DATA\n')
-    att_out_antibiotic.write(antibiotic_array_sep + '\n')
-    att_out_antibiotic.close()
 
-# List of antibiotics to be used in the function
 antibiotics = ['amikacin', 'amoxicillin', 'ampicillin', 'aztreonam', 'cefepime', 'ceftriaxone', 'chloramphenicol',
                'ciprofloxacin', 'clindamycin', 'colistin', 'doripenem', 'ertapenem', 'erthromycin', 'fosfomycin',
                'gentamicin', 'imipenem', 'levofloxacin', 'meropenem', 'moxifloxacin', 'nitrofurantoin', 'tetracycline',
                'tigecycline', 'tobramycin']
- 
-# Run the function and make .arff files for each antibiotic  
+               
+# Loop over the antibiotics
 for antibiotic in antibiotics:
-    outfile_antibiotic = f"{antibiotic}_RGI_all_genes.arff"
-    write_to_arff(antibiotic, outfile_antibiotic, final_table)
+    # Make output files:
+    antibiotic_table = final_table[final_table["antibiotic"] == antibiotic]
+    antibiotic_table = antibiotic_table.drop_duplicates()
+    antibiotic_table = antibiotic_table.set_index('genome_id')
+    antibiotic_table = antibiotic_table.drop('antibiotic', axis=1)
+    antibiotic_array = antibiotic_table.to_string(index=False, header=False)
+    antibiotic_array_sep = antibiotic_array.replace(' ', ',')
+    antibiotic_array_sep = antibiotic_array_sep.replace(',,,', ',')
+    antibiotic_array_sep = antibiotic_array_sep.replace(',,', ',')
+
+    # Set the outfile name based on the antibiotic
+    outfile_name = antibiotic + '_RGI_ALL-TESTTESTTEST.arff'
+
+    # Open the attribute output file
+    att_out = open(outfile_name, "w")
+
+    # Write the attribute list into the file
+    i = 'GeneFamily'
+    att_out.write('@RELATION    ' + i +'\n')
+    for j in Gene:
+        att_out.write('@ATTRIBUTE ' + j + '    REAL\n')
+    name = 'phenotype'
+    att_out.write('@ATTRIBUTE ' + name + '        {Susceptible, Resistant}\n')
+    att_out.write('@DATA\n')
+
+    # Write the array data to the file and close it
+    att_out.write(antibiotic_array_sep)
+    att_out.close()
