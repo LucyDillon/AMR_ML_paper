@@ -10,7 +10,7 @@ For specific files please email.
 |Diamond_RGI_analysis.sh|-|
 |Eggnog_analysis.py | Script used to make .arff files from Eggnog output|
 |Eggnog_analysis.sh | The Eggnog script used on my genomes (a diamond input was used to split the analysis)|
-| FIGURE_1.R | R code used to make Fig.1 |
+| FIGURE_1.R | R code used to make Fig.1 -THIS NEEDS TO BE UPDATED!!!! |
 | J48_2_Dot.sh | Converts J48 model into a .dot file (easier for visulisation|
 |Logistic_regression_NCBI_AMRFinder.py | The logistic regression of NCBI AMRFinderPlusPlus output|
 |Logistic_regression_RGI.py | The logistic regression of RGI output |
