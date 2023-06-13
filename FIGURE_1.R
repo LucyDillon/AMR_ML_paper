@@ -2,6 +2,7 @@
 library(ggplot2)
 library(ggsignif)
 library(gridExtra)
+library(tibble)
 #Read in data:
 data<- read.csv("Accuracy_precision_recall_vals_r.csv")
 #Subset data by method
@@ -11,16 +12,16 @@ RGI_S <- subset(data, Method == "RGI_specific")
 RGI_A <- subset(data, Method == "RGI_all")
 Egg <- subset(data, Method == "Eggnog")
 #Perform paired t-test and save as a unique name to use when making the plot
-t.test.results.OLa <- t.test(OG_RGI$Accuracy, LR$Accuracy, paired = TRUE, alternative = "two.sided")
-t.test.results.OSa <- t.test(OG_RGI$Accuracy, RGI_S$Accuracy, paired = TRUE, alternative = "two.sided")
-t.test.results.OAa <- t.test(OG_RGI$Accuracy, RGI_A$Accuracy, paired = TRUE, alternative = "two.sided")
-t.test.results.OEa <- t.test(OG_RGI$Accuracy, Egg$Accuracy, paired = TRUE, alternative = "two.sided")
-t.test.results.LSa <- t.test(LR$Accuracy, RGI_S$Accuracy, paired = TRUE, alternative = "two.sided")
-t.test.results.LAa <- t.test(LR$Accuracy, RGI_A$Accuracy, paired = TRUE, alternative = "two.sided")
-t.test.results.LEa <- t.test(LR$Accuracy, Egg$Accuracy, paired = TRUE, alternative = "two.sided")
-t.test.results.SAa <- t.test(RGI_S$Accuracy, RGI_A$Accuracy, paired = TRUE, alternative = "two.sided")
-t.test.results.SEa <- t.test(RGI_S$Accuracy, Egg$Accuracy, paired = TRUE, alternative = "two.sided")
-t.test.results.AEa <- t.test(RGI_A$Accuracy, Egg$Accuracy, paired = TRUE, alternative = "two.sided")
+wilcox.test.results.OLa <- wilcox.test(OG_RGI$Accuracy, LR$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.OSa <- wilcox.test(OG_RGI$Accuracy, RGI_S$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.OAa <- wilcox.test(OG_RGI$Accuracy, RGI_A$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.OEa <- wilcox.test(OG_RGI$Accuracy, Egg$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.LSa <- wilcox.test(LR$Accuracy, RGI_S$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.LAa <- wilcox.test(LR$Accuracy, RGI_A$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.LEa <- wilcox.test(LR$Accuracy, Egg$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.SAa <- wilcox.test(RGI_S$Accuracy, RGI_A$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.SEa <- wilcox.test(RGI_S$Accuracy, Egg$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.AEa <- wilcox.test(RGI_A$Accuracy, Egg$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
 # Make sure data is in the correct order
 data$Method <- factor(data$Method,
                       levels = c('OG_RGI', 'LR','RGI_specific', 'RGI_all', 'Eggnog'),ordered = TRUE)
@@ -49,36 +50,32 @@ xx$group<-c("OG_RGI","LR", "RGI_specific", "RGI_all", "Eggnog")
 data.new<-merge(data,xx,by.x="Method",by.y="group")
 #
 data.new$out<-apply(data.new,1,function(x) x$Accuracy %in% x$outliers)
-
-# Make the new plot with data.new
 Plot1 <- ggplot(data.new, aes(factor(Method), Accuracy, fill=Method)) + 
-           geom_boxplot(outlier.shape = NA, alpha=0.6)  + #Note alpha alters the saturation of the colours
-           geom_point(aes(shape=out,size=out), position = position_jitter(w=0.15))+
-           geom_signif(comparisons = list(c("OG_RGI", "LR")), y_position = 102, tip_length = 0.01, textsize = 2.5, vjust = 0.75, # These following lines add sig. bars and *s 
-              test.stat = t.test.results.OLa$p.value, map_signif_level = map_signif_level) +
-           geom_signif(comparisons = list(c("OG_RGI", "RGI_specific")),y_position = 107, tip_length = 0.01, textsize = 2.5, vjust = 0.75,# vjust changes the gap between text and the bar
-              test.stat = t.test.results.OSa$p.value, map_signif_level = map_signif_level) +
-           geom_signif(comparisons = list(c("OG_RGI", "RGI_all")), y_position = 112, tip_length = 0.01, textsize = 2.5, vjust = 0.75,
-              test.stat = t.test.results.OAa$p.value, map_signif_level = map_signif_level) +
-           geom_signif(comparisons = list(c("OG_RGI", "Eggnog")), y_position = 117, tip_length = 0.01, textsize = 2.5, vjust = 0.75,
-              test.stat = t.test.results.OEa$p.value, map_signif_level = map_signif_level) +
-           geom_signif(comparisons = list(c("LR", "RGI_specific")), y_position = 122, tip_length = 0.01, textsize = 2.5, vjust = 0.75,
-                 test.stat = t.test.results.LSa$p.value, map_signif_level = map_signif_level) +
-           geom_signif(comparisons = list(c("LR", "RGI_all")), y_position = 127, tip_length = 0.01, textsize = 2.5, vjust = 0.75,
-              test.stat = t.test.results.LAa$p.value, map_signif_level = map_signif_level) +
-           geom_signif(comparisons = list(c("LR", "Eggnog")), y_position = 132, tip_length = 0.01, textsize = 2.5, vjust = 0.75,
-              test.stat = t.test.results.LEa$p.value, map_signif_level = map_signif_level) +
-          scale_shape_manual(values=c(16,17),guide="none")+ #these numbers relate to the shape numbers (of the points)
-          scale_size_manual(values=c(1.5,2.5),guide="none") + #these are the respective sizes
-          scale_x_discrete(labels=c('1', '2', '3', '4', '5')) +
-          labs(y = "Average accuracy (%)", x = "Method") +
-          theme(panel.background = element_rect(fill = "white", colour = "black")) + 
-          ggtitle("Accuracy of the methods.") +
-          scale_fill_manual(values=cbbPalette, guide="none", labels=c('Original RGI analysis', 'Logistic regression of RGI genes', 
-                                                                      'J48 model using RGI specific genes', 'J48 model using RGI all genes', 
-                                                                      'J48 model using Eggnog gene families')) +
-
-#Now we will do the same for precision and recall:
+  geom_boxplot(outlier.shape = NA, alpha=0.6) + 
+  geom_point(aes(shape=out,size=out), position = position_jitter(w=0.15)) +
+  geom_signif(comparisons = list(c("OG_RGI", "LR")), y_position = 102, tip_length = 0.01, textsize = 2.5, vjust = 0.75, # These following lines add sig. bars and *s 
+              test.stat = wilcox.test.results.OLa$p.value, map_signif_level = map_signif_level) +
+  geom_signif(comparisons = list(c("OG_RGI", "RGI_specific")),y_position = 107, tip_length = 0.01, textsize = 2.5, vjust = 0.75,# vjust changes the gap between text and the bar
+              test.stat = wilcox.test.results.OSa$p.value, map_signif_level = map_signif_level) +
+  geom_signif(comparisons = list(c("OG_RGI", "RGI_all")), y_position = 112, tip_length = 0.01, textsize = 2.5, vjust = 0.75,
+              test.stat = wilcox.test.results.OAa$p.value, map_signif_level = map_signif_level) +
+  geom_signif(comparisons = list(c("OG_RGI", "Eggnog")), y_position = 117, tip_length = 0.01, textsize = 2.5, vjust = 0.75,
+              test.stat = wilcox.test.results.OEa$p.value, map_signif_level = map_signif_level) +
+  geom_signif(comparisons = list(c("LR", "RGI_specific")), y_position = 122, tip_length = 0.01, textsize = 2.5, vjust = 0.75,
+              test.stat = wilcox.test.results.LSa$p.value, map_signif_level = map_signif_level) +
+  geom_signif(comparisons = list(c("LR", "RGI_all")), y_position = 127, tip_length = 0.01, textsize = 2.5, vjust = 0.75,
+              test.stat = wilcox.test.results.LAa$p.value, map_signif_level = map_signif_level) +
+  geom_signif(comparisons = list(c("LR", "Eggnog")), y_position = 132, tip_length = 0.01, textsize = 2.5, vjust = 0.75,
+              test.stat = wilcox.test.results.LEa$p.value, map_signif_level = map_signif_level) +
+  scale_shape_manual(values=c(16,17),guide="none") + 
+  scale_size_manual(values=c(1.5,2.5),guide="none") + 
+  scale_x_discrete(labels=c('1', '2', '3', '4', '5')) +
+  labs(y = "Average accuracy (%)", x = "Method") +
+  ylim(0, 137) +
+  theme(panel.background = element_rect(fill = "white", colour = "black"), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),) + 
+  ggtitle("A.") +
+  scale_fill_manual(values=cbbPalette, guide="none", labels=c('Original RGI analysis', 'Logistic regression of RGI genes', 'J48 model using RGI specific genes', 'J48 model using RGI all genes', 'J48 model using Eggnog gene families'))
 
 # Precision
 precision <- subset(data, select = c(Antibiotic, Method, average_precision))
@@ -89,16 +86,16 @@ RGI_S_P <- subset(precision, Method == "RGI_specific")
 RGI_A_P <- subset(precision, Method == "RGI_all")
 Egg_P <- subset(precision, Method == "Eggnog")
 
-t.test.results.OLp <- t.test(OG_RGI_P$average_precision, LR_P$average_precision, paired = TRUE, alternative = "two.sided")
-t.test.results.OSp <- t.test(OG_RGI_P$average_precision, RGI_S_P$average_precision, paired = TRUE, alternative = "two.sided")
-t.test.results.OAp <- t.test(OG_RGI_P$average_precision, RGI_A_P$average_precision, paired = TRUE, alternative = "two.sided")
-t.test.results.OEp <- t.test(OG_RGI_P$average_precision, Egg_P$average_precision, paired = TRUE, alternative = "two.sided")
-t.test.results.LSp <- t.test(LR_P$average_precision, RGI_S_P$average_precision, paired = TRUE, alternative = "two.sided")
-t.test.results.LAp <- t.test(LR_P$average_precision, RGI_A_P$average_precision, paired = TRUE, alternative = "two.sided")
-t.test.results.LEp <- t.test(LR_P$average_precision, Egg_P$average_precision, paired = TRUE, alternative = "two.sided")
-t.test.results.SAp <- t.test(RGI_S_P$average_precision, RGI_A_P$average_precision, paired = TRUE, alternative = "two.sided")
-t.test.results.SEp <- t.test(RGI_S_P$average_precision, Egg_P$average_precision, paired = TRUE, alternative = "two.sided")
-t.test.results.AEp <- t.test(RGI_A_P$average_precision, Egg_P$average_precision, paired = TRUE, alternative = "two.sided")
+wilcox.test.results.OLp <- wilcox.test(OG_RGI_P$average_precision, LR_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.OSp <- wilcox.test(OG_RGI_P$average_precision, RGI_S_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.OAp <- wilcox.test(OG_RGI_P$average_precision, RGI_A_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.OEp <- wilcox.test(OG_RGI_P$average_precision, Egg_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.LSp <- wilcox.test(LR_P$average_precision, RGI_S_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.LAp <- wilcox.test(LR_P$average_precision, RGI_A_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.LEp <- wilcox.test(LR_P$average_precision, Egg_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.SAp <- wilcox.test(RGI_S_P$average_precision, RGI_A_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.SEp <- wilcox.test(RGI_S_P$average_precision, Egg_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.AEp <- wilcox.test(RGI_A_P$average_precision, Egg_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
 
 
 P <- ggplot(data, aes(x=Method, y=average_precision, fill=Method)) + 
@@ -118,27 +115,29 @@ data.newp <-merge(data,xxp,by.x="Method",by.y="group")
 data.newp$out<-apply(data.newp,1,function(x) x$Accuracy %in% x$outliers)
 
 Plot2 <- ggplot(data.newp, aes(x=Method, y=average_precision, fill=Method)) + 
-            geom_boxplot(outlier.shape = NA, alpha=0.6) + 
-            geom_signif(comparisons = list(c("OG_RGI", "RGI_specific")),y_position = 102, tip_length = 0.025, textsize = 2.5, vjust = 0.5,
-              test.stat = t.test.results.OSp$p.value, map_signif_level = map_signif_level) +
-            geom_signif(comparisons = list(c("OG_RGI", "RGI_all")), y_position = 107, tip_length = 0.025, textsize = 2.5, vjust = 0.5,
-              test.stat = t.test.results.OAp$p.value, map_signif_level = map_signif_level) +
-            geom_signif(comparisons = list(c("OG_RGI", "Eggnog")), y_position = 112, tip_length = 0.025, textsize = 2.5, vjust = 0.5,
-              test.stat = t.test.results.OEp$p.value, map_signif_level = map_signif_level) +
-           geom_signif(comparisons = list(c("LR", "RGI_specific")), y_position = 117, tip_length = 0.025, textsize = 2.5, vjust = 0.5,
-              test.stat = t.test.results.LSp$p.value, map_signif_level = map_signif_level) +
-           geom_signif(comparisons = list(c("LR", "RGI_all")), y_position = 122, tip_length = 0.025, textsize = 2.5, vjust = 0.5,
-              test.stat = t.test.results.LAp$p.value, map_signif_level = map_signif_level) +
-           geom_signif(comparisons = list(c("LR", "Eggnog")), y_position = 127, tip_length = 0.025, textsize = 2.5, vjust = 0.5,
-              test.stat = t.test.results.LEp$p.value, map_signif_level = map_signif_level) +
-           geom_point(aes(shape=out,size=out), position = position_jitter(w=0.15))+
-           scale_shape_manual(values=c(16,17),guide="none")+ #these numbers relate to the shape numbers (of the points)
-           scale_size_manual(values=c(1.5,2.5),guide="none") + #these are the respective sizes
-           scale_x_discrete(labels=c('1', '2', '3', '4', '5')) +
-           labs(y = "Average precision (%)", x = "Method") +
-           theme(panel.background = element_rect(fill = "white", colour = "black")) + 
-           ggtitle("Average precision of the methods.") +
-           scale_fill_manual(values=cbbPalette, guide="none", labels=c('Original RGI analysis', 'Logistic regression of RGI genes', 'J48 model using RGI specific genes', 'J48 model using RGI all genes', 'J48 model using Eggnog gene families'))
+  geom_boxplot(outlier.shape = NA, alpha=0.6) + 
+  geom_point(aes(shape=out,size=out), position = position_jitter(w=0.15))+
+  geom_signif(comparisons = list(c("OG_RGI", "RGI_specific")),y_position = 102, tip_length = 0.01, textsize = 2.5, vjust = 0.75,# vjust changes the gap between text and the bar
+              test.stat = wilcox.test.results.OSp$p.value, map_signif_level = map_signif_level) +
+  geom_signif(comparisons = list(c("OG_RGI", "RGI_all")), y_position = 107, tip_length = 0.01, textsize = 2.5, vjust = 0.75,
+              test.stat = wilcox.test.results.OAp$p.value, map_signif_level = map_signif_level) +
+  geom_signif(comparisons = list(c("OG_RGI", "Eggnog")), y_position = 112, tip_length = 0.01, textsize = 2.5, vjust = 0.75,
+              test.stat = wilcox.test.results.OEp$p.value, map_signif_level = map_signif_level) +
+  geom_signif(comparisons = list(c("LR", "RGI_specific")), y_position = 117, tip_length = 0.01, textsize = 2.5, vjust = 0.75,
+              test.stat = wilcox.test.results.LSp$p.value, map_signif_level = map_signif_level) +
+  geom_signif(comparisons = list(c("LR", "RGI_all")), y_position = 122, tip_length = 0.01, textsize = 2.5, vjust = 0.75,
+              test.stat = wilcox.test.results.LAp$p.value, map_signif_level = map_signif_level) +
+  geom_signif(comparisons = list(c("LR", "Eggnog")), y_position = 127, tip_length = 0.01, textsize = 2.5, vjust = 0.75,
+              test.stat = wilcox.test.results.LEp$p.value, map_signif_level = map_signif_level) +
+  scale_shape_manual(values=c(16,17),guide="none")+ #these numbers relate to the shape numbers (of the points)
+  scale_size_manual(values=c(1.5,2.5),guide="none") + #these are the respective sizes
+  scale_x_discrete(labels=c('1', '2', '3', '4', '5')) +
+  labs(y = "Average precision (%)", x = "Method") +
+  ylim(0, 137) +
+  theme(panel.background = element_rect(fill = "white", colour = "black"), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) + 
+  ggtitle("B.") +
+  scale_fill_manual(values=cbbPalette, guide="none", labels=c('Original RGI analysis', 'Logistic regression of RGI genes', 'J48 model using RGI specific genes', 'J48 model using RGI all genes', 'J48 model using Eggnog gene families'))
 
 # Recall:
 
@@ -151,20 +150,20 @@ RGI_A_R <- subset(recall, Method == "RGI_all")
 Egg_R <- subset(recall, Method == "Eggnog")
 
 
-t.test.results.OLr <- t.test(OG_RGI_R$average_recall, LR_R$average_recall, paired = TRUE, alternative = "two.sided")
-t.test.results.OSr <- t.test(OG_RGI_R$average_recall, RGI_S_R$average_recall, paired = TRUE, alternative = "two.sided")
-t.test.results.OAr <- t.test(OG_RGI_R$average_recall, RGI_A_R$average_recall, paired = TRUE, alternative = "two.sided")
-t.test.results.OEr <- t.test(OG_RGI_R$average_recall, Egg_R$average_recall, paired = TRUE, alternative = "two.sided")
-t.test.results.LSr <- t.test(LR_R$average_recall, RGI_S_R$average_recall, paired = TRUE, alternative = "two.sided")
-t.test.results.LAr <- t.test(LR_R$average_recall, RGI_A_R$average_recall, paired = TRUE, alternative = "two.sided")
-t.test.results.LEr <- t.test(LR_R$average_recall, Egg_R$average_recall, paired = TRUE, alternative = "two.sided")
-t.test.results.SAr <- t.test(RGI_S_R$average_recall, RGI_A_R$average_recall, paired = TRUE, alternative = "two.sided")
-t.test.results.SEr <- t.test(RGI_S_R$average_recall, Egg_R$average_recall, paired = TRUE, alternative = "two.sided")
-t.test.results.AEr <- t.test(RGI_A_R$average_recall, Egg_R$average_recall, paired = TRUE, alternative = "two.sided")
+wilcox.test.results.OLr <- wilcox.test(OG_RGI_R$average_recall, LR_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.OSr <- wilcox.test(OG_RGI_R$average_recall, RGI_S_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.OAr <- wilcox.test(OG_RGI_R$average_recall, RGI_A_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.OEr <- wilcox.test(OG_RGI_R$average_recall, Egg_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.LSr <- wilcox.test(LR_R$average_recall, RGI_S_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.LAr <- wilcox.test(LR_R$average_recall, RGI_A_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.LEr <- wilcox.test(LR_R$average_recall, Egg_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.SAr <- wilcox.test(RGI_S_R$average_recall, RGI_A_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.SEr <- wilcox.test(RGI_S_R$average_recall, Egg_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test.results.AEr <- wilcox.test(RGI_A_R$average_recall, Egg_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
 
 R <- ggplot(data, aes(x=Method, y=average_recall, fill=Method)) + 
-        geom_boxplot(outlier.shape = 17, outlier.size = 2.5, outlier.colour= "black", alpha=0.6) + 
-        geom_point(aes(), position = position_jitter(w = 0.1, h = 0)) 
+  geom_boxplot(outlier.shape = 17, outlier.size = 2.5, outlier.colour= "black", alpha=0.6) + 
+  geom_point(aes(), position = position_jitter(w = 0.1, h = 0)) 
 
 
 ggr <- ggplot_build(R)
@@ -180,22 +179,126 @@ data.newr <-merge(data,xxr,by.x="Method",by.y="group")
 data.newr$out<-apply(data.newr,1,function(x) x$Accuracy %in% x$outliers)
 
 Plot3 <- ggplot(data.newr, aes(x=Method, y=average_recall, fill=Method)) + 
-                geom_boxplot(outlier.shape = NA, alpha=0.6) + 
-                geom_signif(comparisons = list(c("LR", "RGI_specific")), y_position = 102, tip_length = 0.025, textsize = 2.5, vjust = 0.5,
-                  test.stat = t.test.results.LSr$p.value, map_signif_level = map_signif_level) +
-                geom_signif(comparisons = list(c("LR", "RGI_all")), y_position = 107, tip_length = 0.025, textsize = 2.5, vjust = 0.5,
-                  test.stat = t.test.results.LAr$p.value, map_signif_level = map_signif_level) +
-                geom_signif(comparisons = list(c("LR", "Eggnog")), y_position = 112, tip_length = 0.025, textsize = 2.5, vjust = 0.5,
-                  test.stat = t.test.results.LEr$p.value, map_signif_level = map_signif_level) +
-                geom_point(aes(shape=out,size=out), position = position_jitter(w=0.15))+
-                scale_shape_manual(values=c(16,17),guide="none")+ #these numbers relate to the shape numbers (of the points)
-                scale_size_manual(values=c(1.5,2.5),guide="none") + #these are the respective sizes
-                scale_x_discrete(labels=c('1', '2', '3', '4', '5')) +
-                labs(y = "Average recall (%)", x = "Method") +
-                theme(panel.background = element_rect(fill = "white", colour = "black")) + 
-                ggtitle("Average recall of the methods.") +
-                scale_fill_manual(values=cbbPalette, guide="none", labels=c('Original RGI analysis', 'Logistic regression of RGI genes', 
-                                                                              'J48 model using RGI specific genes', 'J48 model using RGI all genes', 
-                                                                              'J48 model using Eggnog gene families'))
+  geom_boxplot(outlier.shape = NA, alpha=0.6) + 
+  geom_point(aes(shape=out,size=out), position = position_jitter(w=0.15))+
+  geom_signif(comparisons = list(c("LR", "RGI_specific")), y_position = 102, tip_length = 0.01, textsize = 2.5, vjust = 0.75,
+              test.stat = wilcox.test.results.LSr$p.value, map_signif_level = map_signif_level) +
+  geom_signif(comparisons = list(c("LR", "RGI_all")), y_position = 107, tip_length = 0.01, textsize = 2.5, vjust = 0.75,
+              test.stat = wilcox.test.results.LAr$p.value, map_signif_level = map_signif_level) +
+  geom_signif(comparisons = list(c("LR", "Eggnog")), y_position = 112, tip_length = 0.01, textsize = 2.5, vjust = 0.75,
+              test.stat = wilcox.test.results.LEr$p.value, map_signif_level = map_signif_level) +
+  scale_shape_manual(values=c(16,17),guide="none")+ #these numbers relate to the shape numbers (of the points)
+  scale_size_manual(values=c(1.5,2.5),guide="none") + #these are the respective sizes
+  scale_x_discrete(labels=c('1', '2', '3', '4', '5')) +
+  labs(y = "Average recall (%)", x = "Method") +
+  ylim(0, 137) +
+  theme(panel.background = element_rect(fill = "white", colour = "black"), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) + 
+  ggtitle("C.") +
+  scale_fill_manual(values=cbbPalette, guide="none", labels=c('1: Original RGI analysis', 
+                                                              '2: Logistic regression of RGI genes', 
+                                                              '3: J48 model using RGI specific genes', 
+                                                              '4: J48 model using RGI all genes', 
+                                                              '5: J48 model using Eggnog gene families'))
+ 
 
 grid.arrange(Plot1,Plot2, Plot3, nrow=2, ncol=2)
+
+
+# Now I will make the plots using a label rather than a significance bar:
+
+Plot4 <- ggplot(data.new, aes(factor(Method), Accuracy, fill=Method)) + 
+  geom_boxplot(outlier.shape = NA, alpha=0.6) + 
+  geom_point(aes(shape=out,size=out), position = position_jitter(w=0.15)) +
+  geom_text(aes(x = 1, y = 107, label = "A")) +
+  geom_text(aes(x = 2, y = 107, label = "B")) +
+  geom_text(aes(x = 3, y = 107, label = "C")) +
+  geom_text(aes(x = 4, y = 107, label = "D")) +
+  geom_text(aes(x = 5, y = 107, label = "CD")) +
+  scale_shape_manual(values=c(16,17),guide="none") + 
+  scale_size_manual(values=c(1.5,2.5),guide="none") + 
+  scale_x_discrete(name = "Method", labels=c('1', '2', '3', '4', '5')) +
+  scale_y_continuous(breaks = seq(0, 100, by = 25), limits=c(0,109), name ="Average accuracy (%)" )+
+  theme(panel.background = element_rect(fill = "white", colour = "black"), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),) + 
+  ggtitle("A.") +
+  scale_fill_manual(values=cbbPalette, guide="none", labels=c('Original RGI analysis', 'Logistic regression of RGI genes', 'J48 model using RGI specific genes', 'J48 model using RGI all genes', 'J48 model using Eggnog gene families'))
+
+
+Plot5 <- ggplot(data.newp, aes(x=Method, y=average_precision, fill=Method)) + 
+  geom_boxplot(outlier.shape = NA, alpha=0.6) + 
+  geom_point(aes(shape=out,size=out), position = position_jitter(w=0.15))+
+  geom_text(aes(x = 1, y = 107, label = "A")) +
+  geom_text(aes(x = 2, y = 107, label = "A")) +
+  geom_text(aes(x = 3, y = 107, label = "B")) +
+  geom_text(aes(x = 4, y = 107, label = "C")) +
+  geom_text(aes(x = 5, y = 107, label = "C")) +
+  scale_shape_manual(values=c(16,17),guide="none")+ #these numbers relate to the shape numbers (of the points)
+  scale_size_manual(values=c(1.5,2.5),guide="none") + #these are the respective sizes
+  scale_x_discrete(labels=c('1', '2', '3', '4', '5')) +
+  scale_y_continuous(breaks = seq(0, 100, by = 25), limits=c(0,109), name ="Average precision (%)" )+
+  theme(panel.background = element_rect(fill = "white", colour = "black"), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) + 
+  ggtitle("B.") +
+  scale_fill_manual(values=cbbPalette, guide="none", labels=c('Original RGI analysis', 'Logistic regression of RGI genes', 'J48 model using RGI specific genes', 'J48 model using RGI all genes', 'J48 model using Eggnog gene families'))
+
+
+Plot6 <- ggplot(data.newr, aes(x=Method, y=average_recall, fill=Method)) + 
+  geom_boxplot(outlier.shape = NA, alpha=0.6) + 
+  geom_point(aes(shape=out,size=out), position = position_jitter(w=0.15))+
+  geom_text(aes(x = 1, y = 107, label = "A")) +
+  geom_text(aes(x = 2, y = 107, label = "A")) +
+  geom_text(aes(x = 3, y = 107, label = "B")) +
+  geom_text(aes(x = 4, y = 107, label = "C")) +
+  geom_text(aes(x = 5, y = 107, label = "BC")) +
+  scale_shape_manual(values=c(16,17),guide="none")+ #these numbers relate to the shape numbers (of the points)
+  scale_size_manual(values=c(1.5,2.5),guide="none") + #these are the respective sizes
+  scale_y_continuous(breaks = seq(0, 100, by = 25), limits=c(0,109), name ="Average recall (%)" )+
+  scale_x_discrete(labels=c('1', '2', '3', '4', '5')) +
+  theme(panel.background = element_rect(fill = "white", colour = "black"), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) + 
+  ggtitle("C.") +
+  scale_fill_manual(values=cbbPalette, guide=FALSE, labels=c('1: Original RGI analysis', 
+                                                              '2: Logistic regression of RGI genes', 
+                                                              '3: J48 model using RGI specific genes', 
+                                                              '4: J48 model using RGI all genes', 
+                                                              '5: J48 model using Eggnog gene families'))
+
+
+grid.arrange(Plot4,Plot5, Plot6, nrow=2, ncol=2)
+
+# Statistics:
+wilcox.test(OG_RGI$Accuracy, LR$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(OG_RGI$Accuracy, RGI_S$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(OG_RGI$Accuracy, RGI_A$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(OG_RGI$Accuracy, Egg$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(LR$Accuracy, RGI_S$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(LR$Accuracy, RGI_A$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(LR$Accuracy, Egg$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(RGI_S$Accuracy, RGI_A$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(RGI_S$Accuracy, Egg$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(RGI_A$Accuracy, Egg$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+
+wilcox.test(OG_RGI_P$average_precision, LR_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(OG_RGI_P$average_precision, RGI_S_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(OG_RGI_P$average_precision, RGI_A_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(OG_RGI_P$average_precision, Egg_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(LR_P$average_precision, RGI_S_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(LR_P$average_precision, RGI_A_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(LR_P$average_precision, Egg_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(RGI_S_P$average_precision, RGI_A_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(RGI_S_P$average_precision, Egg_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(RGI_A_P$average_precision, Egg_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+
+wilcox.test(OG_RGI_R$average_recall, LR_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(OG_RGI_R$average_recall, RGI_S_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(OG_RGI_R$average_recall, RGI_A_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(OG_RGI_R$average_recall, Egg_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(LR_R$average_recall, RGI_S_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(LR_R$average_recall, RGI_A_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(LR_R$average_recall, Egg_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(RGI_S_R$average_recall, RGI_A_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(RGI_S_R$average_recall, Egg_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+wilcox.test(RGI_A_R$average_recall, Egg_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
+
+
