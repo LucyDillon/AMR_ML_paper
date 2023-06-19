@@ -115,5 +115,8 @@ for group_name, group in groups:
 # Concatenate the confusion matrices for all groups into a single dataframe
 result = pd.concat(confusion_matrices.values(), axis=0)
 
+# Calculate the accuracy for each row
+result['Accuracy'] = (result['TruePositive'] + result['TrueNegative']) / (result['TruePositive'] +result['TrueNegative'] + result['FalsePositive'] + result['FalseNegative'])
+
 # Print the result (this will show the confusion matrix for each antibiotic)
 print(result)
