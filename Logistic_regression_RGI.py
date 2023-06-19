@@ -27,7 +27,7 @@ Overall_EUCAST_data = pd.merge(left=EUCAST_species_MIC, right=MIC_reduced, how='
 
 Overall_EUCAST_data = Overall_EUCAST_data.dropna(subset=['phenotype'])
 
-# Take average of MIC values by grouping by genome id and antibiotic
+# Take the average of MIC values by grouping by genome id and antibiotic
 average_Overall_EUCAST_data = Overall_EUCAST_data.groupby(['genome_id', 'antibiotic']).agg({'MIC': ['mean']})
 average_Overall_EUCAST_data.columns = ['MIC_mean']
 average_Overall_EUCAST_data = average_Overall_EUCAST_data.reset_index()
@@ -36,10 +36,10 @@ average_Overall_EUCAST_data = average_Overall_EUCAST_data.reset_index()
 test_data = pd.merge(average_Overall_EUCAST_data, Overall_EUCAST_data, how='left', left_on=['genome_id', 'antibiotic'],
                      right_on=['genome_id', 'antibiotic'])
 
-# Make a reduced overall dataframe called "Reduced_EUCAST_df"
+# Make a reduced overall data frame called "Reduced_EUCAST_df"
 Reduced_EUCAST_df = test_data[["genome_id", "antibiotic", "MIC_mean", "EUCAST_MIC", "EUCAST_species"]]
 
-# Separate species names and phenotype by separating by underscore delimeter into 2 separate columns
+# Separate species names and phenotype by separating by underscore delimiter into 2 separate columns
 Reduced_EUCAST_df[['EUCAST_species', 'phenotype']] = Reduced_EUCAST_df['EUCAST_species'].str.split('_', expand=True)
 
 # Make two subset tables resistant_EUCAST and susceptible_EUCAST to manipulate
@@ -69,7 +69,7 @@ all_EUCAST_data = pd.merge(Overall_data, drug_class, on="antibiotic")
 # Reduce all_EUCAST_data:
 all_EUCAST_data_final = all_EUCAST_data[['genome_id', 'antibiotic', 'add_phenotype']]
 
-# merge with EUCAST info to get normal AB
+# Merge with EUCAST info to get normal AB
 RGI_EUCAST = pd.merge(left=RGI_all, right=DrugClass_info, on='RGIDrugClass')
 
 RGI_EUCAST = RGI_EUCAST.drop_duplicates()
@@ -80,43 +80,13 @@ RGI_EUCAST['genome_id'] = RGI_EUCAST['genome_id'].astype(str)
 # Merge RGI data and EUCAST data:
 FINAL_DATA = pd.merge(left=all_EUCAST_data_final, right=RGI_EUCAST, on=['genome_id', 'antibiotic'])
 
-# reduce to essential columns only and drop duplicate data:
+# Reduce to essential columns only:
 RGI_final = FINAL_DATA[['genome_id', 'antibiotic', 'add_phenotype', 'Gene', 'GeneHit']]
-RGI_final = RGI_final.drop_duplicates()
-
+# Only susceptible and Resistant strain
 RGI_final = RGI_final[(RGI_final["add_phenotype"] == 'Susceptible') | (RGI_final["add_phenotype"] == 'Resistant')]
 
-RGI_final = RGI_final.dropna()
-
-Overall_grouped = RGI_final.groupby(["GeneHit", "antibiotic", "add_phenotype"]).size().reset_index(name="AB_hits")
-
-Table_grouped = FINAL_DATA.groupby('antibiotic')
-for name, group_df in Table_grouped:
-    exec(f'{name} = group_df')
-# Make  list of the AB dataframes:
-df_list = [amikacin, amoxicillin, ampicillin, aztreonam, cefepime, ceftriaxone, chloramphenicol,
-           ciprofloxacin, clindamycin, colistin, doripenem, ertapenem, erythromycin, fosfomycin,
-           gentamicin, imipenem, levofloxacin, meropenem, moxifloxacin, nitrofurantoin, tetracycline,
-           tigecycline, tobramycin]
-
-
-for i, df in enumerate(df_list):
-    df_list[i] = df[['genome_id', 'add_phenotype', 'GeneHit']]
-    df_list[i] = df[(df["add_phenotype"] == "Resistant") |
-                    (df["add_phenotype"] == "Susceptible")]
-
-
-def process_df(df):
-    df_grouped = df.groupby(['genome_id', 'add_phenotype']).size().reset_index(name="all_genes")
-    return df_grouped
-
-
-for df in df_list:
-    grouped_df = process_df(df)
-
-
-def antibiotic_classification(antibiotic_name, data_frame):
-    antibiotic = data_frame[data_frame['antibiotic'] == antibiotic_name]
+def antibiotic_classification(antibiotic):
+    antibiotic = RGI_final[RGI_final['antibiotic'] == antibiotic]
     antibiotic = antibiotic[['genome_id', 'add_phenotype', 'GeneHit']]
     antibiotic = antibiotic[(antibiotic["add_phenotype"] == "Resistant") |
                             (antibiotic["add_phenotype"] == "Susceptible")]
@@ -143,6 +113,7 @@ ab_list = ['amikacin', 'amoxicillin', 'ampicillin', 'aztreonam', 'cefepime', 'ce
            'gentamicin', 'imipenem', 'levofloxacin', 'meropenem', 'moxifloxacin', 'nitrofurantoin', 'tetracycline',
            'tigecycline', 'tobramycin']
 
+
 for ab in ab_list:
     print(ab)
-    antibiotic_classification(ab, FINAL_DATA)
+    antibiotic_classification(ab)
