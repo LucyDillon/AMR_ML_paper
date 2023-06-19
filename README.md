@@ -7,7 +7,7 @@ For specific files please email.
 |------|-------------|
 |AMR_gene_count.sh | This script was used to make gene counts from the gene outputs of RGI etc.|
 |Cytoscape_analysis.md | Information on gene network plot (fig4) |
-|Diamond_RGI_analysis.sh|-|
+|Diamond_analysis.sh | Diamond script used pre eggnog analysis |
 |Eggnog_analysis.py | Script used to make .arff files from Eggnog output|
 |Eggnog_analysis.sh | The Eggnog script used on my genomes (a diamond input was used to split the analysis)|
 |FIGURE_1.R | R code used to make Fig.1 -THIS NEEDS TO BE UPDATED!!!! |
@@ -24,9 +24,8 @@ For specific files please email.
 |Tree_traversal_stacked_barcharts.py| Script to make stacked barcharts from tree traversals |
 |Wilcoxon_test_accuracy_precision_recall.R | Stats test run to compare different model accuracy, precison, and recall|
 |genome_ids.txt | This is the list if genomes downloaded from PATRIC (now BV-BRC)|
+|taxa_test_train_files.py | Script used to make the test & train files for different taxa analysis |
 
 
 
-#### Files needed to upload:
-  - taxa analysis code
 
