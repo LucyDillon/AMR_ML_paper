@@ -1,6 +1,7 @@
 # Import packages:
 import pandas as pd
 import numpy as np
+
 # Read in MIC & EUCAST data files:
 Species_ids = pd.read_csv("All_patric_genus_species.csv")
 EUCAST_MIC = pd.read_csv("EUCAST_MIC_values.csv")
@@ -9,12 +10,17 @@ drug_class = pd.read_csv("merge_drugclass.csv")
 # Read in all genomes:
 data = pd.read_csv("ALL_RGI_genomes.csv")
 
-Species = Species_ids[['genome_id', 'species']]
-taxa_info = MIC_data[['genome_id', 'Phylum', 'Class', 'Order', 'Family']]
-
 # MIC analysis:
 MIC_reduced = MIC_data[(MIC_data["phenotype"] == "Resistant") | (MIC_data["phenotype"]== "Susceptible")]
-
+data_reduced = data.drop('Gene', axis =1)
+data_antibioticed = data_reduced.antibioticby(['genome_id', 'RGIDrugClass'])['GeneHit'].sum().reset_index()
+# If gene hit > 0 genome is resistant, if 1 < susceptible
+data_antibioticed['pheno'] = np.where(data_antibioticed['GeneHit'] > 0, "Resistant", "Susceptible")
+# Now merge with the drug class to get the matching AB to the phenotype
+RGI_data = pd.merge(data_antibioticed, drug_class, on='RGIDrugClass')
+# Reduce columns:
+RGI_data_reduced = RGI_data[['genome_id', 'GeneHit', 'pheno', 'antibiotic']]
+RGI_data_reduced = RGI_data_reduced.dropna()
 
 #Merge Species_ids and EUCAST_MIC with common column "EUCAST_species"
 EUCAST_species_MIC = pd.merge(EUCAST_MIC, Species_ids, on="EUCAST_species")
@@ -23,8 +29,8 @@ EUCAST_species_MIC = pd.merge(EUCAST_MIC, Species_ids, on="EUCAST_species")
 Overall_EUCAST_data = pd.merge(left=EUCAST_species_MIC, right=MIC_reduced, how='left', on=['genome_id', 'antibiotic'])
 Overall_EUCAST_data = Overall_EUCAST_data.dropna(subset=['phenotype'])
 
-#Take average of MIC values by grouping by genome id and antibiotic
-average_Overall_EUCAST_data = Overall_EUCAST_data.groupby(['genome_id', 'antibiotic']).agg({'MIC': ['mean']})
+#Take average of MIC values by antibioticing by genome id and antibiotic
+average_Overall_EUCAST_data = Overall_EUCAST_data.antibioticby(['genome_id', 'antibiotic']).agg({'MIC': ['mean']})
 average_Overall_EUCAST_data.columns = ['MIC_mean']
 average_Overall_EUCAST_data = average_Overall_EUCAST_data.reset_index()
 
@@ -58,65 +64,36 @@ all_EUCAST_data = pd.merge(Overall_data, drug_class, on="antibiotic")
 # Reduce all_EUCAST_data:
 all_EUCAST_data_final = all_EUCAST_data[['genome_id', 'antibiotic', 'add_phenotype']]
 phenotype = all_EUCAST_data_final[["antibiotic", "genome_id", "add_phenotype"]]
-
-
-#merge phenotype data with RGI data
-data_table = pd.merge(data, drug_class, on=['RGIDrugClass'])
-
-final_table = pd.merge(data_table, phenotype, on=["genome_id", "antibiotic"])
-
-final_table_reduced = final_table[["genome_id", "Gene", "GeneHit", "antibiotic", "add_phenotype"]]
-
+# Now need to merge with the phenotype 
+all_data = pd.merge(RGI_data_reduced, phenotype, on=['genome_id','antibiotic'])
 # only keep rows with susceptible or res phenotype:
-final_table = final_table_reduced[(final_table_reduced["add_phenotype"] == 'Susceptible') | (final_table_reduced["add_phenotype"] == 'Resistant')]
-# This adds a column where, if the gene hit is greater than 0 it will print Resistant, if there is not gene hit it will print susceptible
-Pivot_table = pd.pivot_table(final_table, values='GeneHit', index='genome_id', columns='Gene', fill_value=0)
-Pivot_table['sum'] = Pivot_table[list(Pivot_table.columns)].sum(axis=1)
-Pivot_table['pheno'] = np.where(Pivot_table['sum'] > 0, "Resistant", "Susceptible")
-Pivot_table = Pivot_table[["pheno"]]
+final_table = all_data[(all_data["add_phenotype"] == 'Susceptible') | (all_data["add_phenotype"] == 'Resistant')]
+antibiotics = ['amikacin', 'amoxicillin', 'ampicillin', 'aztreonam', 'cefepime', 'ceftriaxone', 'chloramphenicol',
+               'ciprofloxacin', 'clindamycin', 'colistin', 'doripenem', 'ertapenem', 'erthromycin', 'fosfomycin',
+               'gentamicin', 'imipenem', 'levofloxacin', 'meropenem', 'moxifloxacin', 'nitrofurantoin', 'tetracycline',
+               'tigecycline', 'tobramycin']
 
-phenotype =phenotype.set_index('genome_id')
-#merge phenotype data with eggnog data
-final_table = Pivot_table.join(phenotype)
-# Reduce to only susceptible and resistant phenotypes
-final_table = final_table[(final_table["add_phenotype"] == 'Susceptible') | (final_table["add_phenotype"] == 'Resistant')]
-
-# Split the dataframe into groups by 'antibiotic'
-groups = final_table.groupby('antibiotic')
-
-# Create an empty dictionary to store the confusion matrices for each group
-confusion_matrices = {}
-
-# Iterate over each group and create a confusion matrix
-for group_name, group in groups:
-    # Create a boolean mask for true positives and true negatives
-    tp_mask = (group['pheno'] == 'Susceptible') & (group['add_phenotype'] == 'Susceptible')
-    tn_mask = (group['pheno'] == 'Resistant') & (group['add_phenotype'] == 'Resistant')
-    fp_mask = (group['pheno'] == 'Susceptible') & (group['add_phenotype'] == 'Resistant')
-    fn_mask = (group['pheno'] == 'Resistant') & (group['add_phenotype'] == 'Susceptible')
+for antibiotic in antibiotics:
+    # Filter the DataFrame for the specific antibiotic
+    antibiotic_df = final_table[final_table['antibiotic'] == antibiotic]
+    antibiotic_df = antibiotic_df.drop_duplicates()
     
-    # Calculate the number of true positives, true negatives, false positives, and false negatives
-    tp = tp_mask.sum()
-    tn = tn_mask.sum()
-    fp = fp_mask.sum()
-    fn = fn_mask.sum()
+    # Filter rows for predicted 'Susceptible' and 'Resistant'
+    predicted_sus = antibiotic_df[antibiotic_df['pheno'] == 'Susceptible']
+    predicted_res = antibiotic_df[antibiotic_df['pheno'] == 'Resistant']
     
-    # Create a confusion matrix for the group
-    matrix = pd.DataFrame({
-        'True Positive': [tp],
-        'True Negative': [tn],
-        'False Positive': [fp],
-        'False Negative': [fn]
-    }, index=[group_name])
+    # Calculate true positives, true negatives, false positives, and false negatives
+    true_positive = predicted_sus[predicted_sus['add_phenotype'] == 'Susceptible'].shape[0]
+    true_negative = predicted_res[predicted_res['add_phenotype'] == 'Resistant'].shape[0]
+    false_positive = predicted_res[predicted_res['add_phenotype'] == 'Susceptible'].shape[0]
+    false_negative = predicted_sus[predicted_sus['add_phenotype'] == 'Resistant'].shape[0]
     
-    # Store the confusion matrix in the dictionary
-    confusion_matrices[group_name] = matrix
-    
-# Concatenate the confusion matrices for all groups into a single dataframe
-result = pd.concat(confusion_matrices.values(), axis=0)
+    # Create the confusion matrix
+    confusion_matrix = pd.DataFrame(
+        [[true_negative, false_positive], [false_negative, true_positive]],
+        index=['Resistant', 'Susceptible'],
+        columns=['Resistant', 'Susceptible']
+    )
 
-# Calculate the accuracy for each row
-result['Accuracy'] = (result['TruePositive'] + result['TrueNegative']) / (result['TruePositive'] +result['TrueNegative'] + result['FalsePositive'] + result['FalseNegative'])
-
-# Print the result (this will show the confusion matrix for each antibiotic)
-print(result)
+    print(f"Confusion matrix for {antibiotic}:\n{confusion_matrix}\n")
+    
