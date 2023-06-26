@@ -62,9 +62,14 @@ all_EUCAST_data = pd.merge(Overall_data, drug_class, on="antibiotic")
 # Reduce all_EUCAST_data:
 all_EUCAST_data_final = all_EUCAST_data[['genome_id', 'antibiotic', 'add_phenotype']]
 phenotype = all_EUCAST_data_final[["antibiotic", "genome_id", "add_phenotype"]]
-phenotype = phenotype.set_index('genome_id')
+
 # merge phenotype data with eggnog data
-final_table = table.join(phenotype)
+
+table = table.reset_index()
+table.columns = table.columns.droplevel(0)
+table.rename(columns = {list(table)[0]: 'genome_id'}, inplace = True)
+#merge phenotype data with eggnog data
+final_table = pd.merge(table, phenotype, on='genome_id')
 # only keep rows with susceptible or res phenotype:
 final_table = final_table[(final_table["add_phenotype"] == 'Susceptible') |
                           (final_table["add_phenotype"] == 'Resistant')]
