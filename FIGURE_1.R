@@ -119,7 +119,7 @@ Plot5 <- ggplot(data.newp, aes(x=Method, y=average_precision, fill=Method)) +
 Plot6 <- ggplot(data.newr, aes(x=Method, y=average_recall, fill=Method)) + 
   geom_boxplot(outlier.shape = NA, alpha=0.6) + 
   geom_point(aes(shape=out,size=out), position = position_jitter(w=0.15))+
-  geom_text(aes(x = 1, y = 107, label = "A")) +
+  geom_text(aes(x = 1, y = 107, label = "ABC")) +
   geom_text(aes(x = 2, y = 107, label = "A")) +
   geom_text(aes(x = 3, y = 107, label = "B")) +
   geom_text(aes(x = 4, y = 107, label = "C")) +
@@ -139,38 +139,4 @@ Plot6 <- ggplot(data.newr, aes(x=Method, y=average_recall, fill=Method)) +
 
 
 grid.arrange(Plot4,Plot5, Plot6, nrow=2, ncol=2)
-
-# Statistics:
-wilcox.test(OG_RGI$Accuracy, LR$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(OG_RGI$Accuracy, RGI_S$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(OG_RGI$Accuracy, RGI_A$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(OG_RGI$Accuracy, Egg$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(LR$Accuracy, RGI_S$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(LR$Accuracy, RGI_A$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(LR$Accuracy, Egg$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(RGI_S$Accuracy, RGI_A$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(RGI_S$Accuracy, Egg$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(RGI_A$Accuracy, Egg$Accuracy, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-
-wilcox.test(OG_RGI_P$average_precision, LR_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(OG_RGI_P$average_precision, RGI_S_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(OG_RGI_P$average_precision, RGI_A_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(OG_RGI_P$average_precision, Egg_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(LR_P$average_precision, RGI_S_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(LR_P$average_precision, RGI_A_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(LR_P$average_precision, Egg_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(RGI_S_P$average_precision, RGI_A_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(RGI_S_P$average_precision, Egg_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(RGI_A_P$average_precision, Egg_P$average_precision, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-
-wilcox.test(OG_RGI_R$average_recall, LR_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(OG_RGI_R$average_recall, RGI_S_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(OG_RGI_R$average_recall, RGI_A_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(OG_RGI_R$average_recall, Egg_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(LR_R$average_recall, RGI_S_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(LR_R$average_recall, RGI_A_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(LR_R$average_recall, Egg_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(RGI_S_R$average_recall, RGI_A_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(RGI_S_R$average_recall, Egg_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-wilcox.test(RGI_A_R$average_recall, Egg_R$average_recall, paired = TRUE, alternative = "two.sided", conf.level = 0.95)
-
+                     
