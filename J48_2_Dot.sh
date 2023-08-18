@@ -3,7 +3,7 @@
 #SBATCH --partition=lowpri
 #SBATCH --job-name=weka
 #SBATCH --mem=50G
-cd /mnt/scratch2/users/40309916/eggnog_arff
+cd /mnt/scratch2/users/********/eggnog_arff
 
 module load weka/3.8.6/java-8.0.151
 
