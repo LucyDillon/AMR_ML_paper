@@ -6,7 +6,7 @@
 #SBATCH --job-name=eggnog
 echo $SLURM_JOB_ID
 
-cd /mnt/scratch2/users/40309916/PATRIC_Genomes/gff_files
+cd /mnt/scratch2/users/********/PATRIC_Genomes/gff_files
 module load apps/anaconda3
 source activate /mnt/scratch2/igfs-anaconda/conda-envs/eggnog
 
